@@ -1,4 +1,4 @@
-module friendly/cli
+module github.com/friendly-social/cli
 
 go 1.25.5
 

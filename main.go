@@ -11,8 +11,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-
-	"friendly/cli/friendly"
+	"github.com/friendly-social/cli/internal/api"
 )
 
 var (
@@ -43,9 +42,9 @@ var (
 			Padding(1, 2)
 
 	selectedBoxStyle = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("#00FF00")).
-			Padding(1, 2)
+				Border(lipgloss.RoundedBorder()).
+				BorderForeground(lipgloss.Color("#00FF00")).
+				Padding(1, 2)
 )
 
 type view int
@@ -158,25 +157,25 @@ var keys = keyMap{
 
 type model struct {
 	// SDK client
-	client *friendly.Client
+	client *api.Client
 
 	// Auth
-	auth *friendly.Authorization
+	auth *api.Authorization
 
 	// Current view and mode
 	currentView view
 	currentMode mode
 
 	// UI components
-	help      help.Model
-	inputs    []textinput.Model
-	focusIdx  int
-	list      list.Model
+	help     help.Model
+	inputs   []textinput.Model
+	focusIdx int
+	list     list.Model
 
 	// Data
-	feedEntries    []friendly.FeedEntry
+	feedEntries    []api.FeedEntry
 	feedSelection  int
-	networkFriends []friendly.UserDetails
+	networkFriends []api.UserDetails
 	profileData    map[string]string
 	generatedToken string
 
@@ -187,7 +186,7 @@ type model struct {
 	height       int
 }
 
-func initialModel(client *friendly.Client) model {
+func initialModel(client *api.Client) model {
 	// Initialize text inputs for registration form
 	inputs := make([]textinput.Model, 3)
 
@@ -432,14 +431,14 @@ func (m model) handleRegistrationSubmit() (tea.Model, tea.Cmd) {
 	}
 
 	// Create registration
-	nickname, err := friendly.NewNickname(m.inputs[0].Value())
+	nickname, err := api.NewNickname(m.inputs[0].Value())
 	if err != nil {
 		m.message = fmt.Sprintf("Invalid nickname: %v", err)
 		m.messageStyle = errorStyle
 		return m, nil
 	}
 
-	description, err := friendly.NewUserDescription(m.inputs[1].Value())
+	description, err := api.NewUserDescription(m.inputs[1].Value())
 	if err != nil {
 		m.message = fmt.Sprintf("Invalid description: %v", err)
 		m.messageStyle = errorStyle
@@ -447,13 +446,13 @@ func (m model) handleRegistrationSubmit() (tea.Model, tea.Cmd) {
 	}
 
 	// Parse interests
-	interests := []friendly.Interest{}
+	interests := []api.Interest{}
 	if m.inputs[2].Value() != "" {
 		interestStrs := strings.Split(m.inputs[2].Value(), ",")
 		for _, s := range interestStrs {
 			s = strings.TrimSpace(s)
 			if s != "" {
-				interest, err := friendly.NewInterest(s)
+				interest, err := api.NewInterest(s)
 				if err != nil {
 					m.message = fmt.Sprintf("Invalid interest '%s': %v", s, err)
 					m.messageStyle = errorStyle
@@ -658,7 +657,7 @@ func (m *model) prevView() (tea.Model, tea.Cmd) {
 	return *m, nil
 }
 
-func convertInterestsToStrings(interests []friendly.Interest) []string {
+func convertInterestsToStrings(interests []api.Interest) []string {
 	strs := make([]string, len(interests))
 	for i, interest := range interests {
 		strs[i] = string(interest)
@@ -810,7 +809,7 @@ func (m model) View() string {
 }
 
 func main() {
-	client := friendly.NewMeetacyClient()
+	client := api.NewMeetacyClient()
 
 	p := tea.NewProgram(initialModel(client), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
