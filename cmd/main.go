@@ -11,7 +11,7 @@ import (
 
 func main() {
 	client := sdk.NewProductionClient()
-	p := tea.NewProgram(root.NewModel(client))
+	p := tea.NewProgram(root.New(client))
 
 	if _, err := p.Run(); err != nil {
 		log.Fatal(err)

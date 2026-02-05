@@ -1,7 +1,6 @@
 package registration
 
 import (
-	"context"
 	"fmt"
 	"strings"
 
@@ -21,7 +20,7 @@ type Model struct {
 	inputs []textinput.Model
 }
 
-func NewModel(client *sdk.Client) Model {
+func New(client *sdk.Client) Model {
 	ni := textinput.New()
 	ni.Placeholder = "Nickname"
 	ni.CharLimit = 256
@@ -83,19 +82,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			switch m.cursor {
 			case len(m.inputs):
-				nickname, _ := sdk.NewNickname(m.inputs[0].Value())
-				description, _ := sdk.NewUserDescription(m.inputs[1].Value())
-				social, _ := sdk.NewSocialLink(m.inputs[3].Value())
+				/*
+					nickname, _ := sdk.NewNickname(m.inputs[0].Value())
+					description, _ := sdk.NewUserDescription(m.inputs[1].Value())
+					social, _ := sdk.NewSocialLink(m.inputs[3].Value())
 
-				interests := make([]sdk.Interest, 0)
-				for interestStr := range strings.SplitSeq(m.inputs[2].Value(), ",") {
-					interest, _ := sdk.NewInterest(strings.TrimSpace(interestStr))
-					interests = append(interests, interest)
+					interests := make([]sdk.Interest, 0)
+					for interestStr := range strings.SplitSeq(m.inputs[2].Value(), ",") {
+						interest, _ := sdk.NewInterest(strings.TrimSpace(interestStr))
+						interests = append(interests, interest)
+					}
+
+					auth, _ := m.client.Generate(context.Background(), nickname, description, interests, nil, social)
+					m.finalOutput = fmt.Sprintf("Id: %d\nToken: %s\nHash: %s", auth.Id, auth.Token, auth.AccessHash)
+				*/
+
+				return m, func() tea.Msg {
+					return session.ActiveModelChangedMsg{NewModel: session.ActiveModelFeed}
 				}
-
-				auth, _ := m.client.Generate(context.Background(), nickname, description, interests, nil, social)
-				m.finalOutput = fmt.Sprintf("Id: %d\nToken: %s\nHash: %s", auth.Id, auth.Token, auth.AccessHash)
-				return m, nil
 			case len(m.inputs) + 1:
 				return m, tea.Quit
 			}
@@ -125,6 +129,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	var s strings.Builder
+	fmt.Fprintf(&s, "%s\n\n", "please introduce yourself!")
+
 	for i, input := range m.inputs {
 		cursor := "  "
 		if m.cursor == i {

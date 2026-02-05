@@ -1,7 +1,5 @@
 package session
 
-import sdk "github.com/friendly-social/golang-sdk"
-
 type VimMode int
 
 const (
@@ -13,12 +11,8 @@ type ActiveModel int
 
 const (
 	ActiveModelRegistration ActiveModel = iota
+	ActiveModelFeed 
 )
-
-type Context struct {
-	Auth *sdk.Authorization
-	Mode VimMode
-}
 
 type VimModeChangedMsg struct {
 	NewMode VimMode
