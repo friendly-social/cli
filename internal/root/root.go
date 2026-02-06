@@ -5,9 +5,10 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/friendly-social/cli/internal/app"
+	"github.com/friendly-social/cli/internal/auth"
 	"github.com/friendly-social/cli/internal/feed"
-	"github.com/friendly-social/cli/internal/registration"
-	"github.com/friendly-social/cli/internal/session"
+	"github.com/friendly-social/cli/internal/vim"
 	sdk "github.com/friendly-social/golang-sdk"
 )
 
@@ -15,19 +16,28 @@ type Model struct {
 	width  int
 	height int
 
-	mode   session.VimMode
-	active session.ActiveModel
-	models map[session.ActiveModel]tea.Model
+	mode   vim.Mode
+	screen app.Screen
+	models map[app.Screen]tea.Model
 }
 
 func New(client *sdk.Client) Model {
 	return Model{
-		active: session.ActiveModelRegistration,
-		models: map[session.ActiveModel]tea.Model{
-			session.ActiveModelRegistration: registration.New(client),
-			session.ActiveModelFeed: feed.New(),
+		screen: app.ScreenAuth,
+		models: map[app.Screen]tea.Model{
+			app.ScreenAuth: auth.New(client),
+			app.ScreenFeed: feed.New(),
 		},
 	}
+}
+
+func (m Model) broadcast(msg tea.Msg) tea.Cmd {
+	cmds := make([]tea.Cmd, len(m.models))
+	for i, model := range m.models {
+		m.models[i], cmds[i] = model.Update(msg)
+	}
+
+	return tea.Batch(cmds...)
 }
 
 func (m Model) Init() tea.Cmd {
@@ -36,7 +46,7 @@ func (m Model) Init() tea.Cmd {
 		cmds[i] = model.Init()
 	}
 
-	return tea.Batch(append(cmds, tea.ClearScreen)...)
+	return tea.Sequence(tea.ClearScreen, tea.Batch(cmds...))
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -44,44 +54,34 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "esc":
-			if m.mode == session.VimModeInsert {
+			if m.mode == vim.ModeInsert {
 				return m, func() tea.Msg {
-					return session.VimModeChangedMsg{NewMode: session.VimModeNormal}
+					return vim.ModeChangedMsg{NewMode: vim.ModeNormal}
 				}
 			}
 		case "i":
-			if m.mode == session.VimModeNormal {
+			if m.mode == vim.ModeNormal {
 				return m, func() tea.Msg {
-					return session.VimModeChangedMsg{NewMode: session.VimModeInsert}
+					return vim.ModeChangedMsg{NewMode: vim.ModeInsert}
 				}
 			}
 		}
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
-
-		cmds := make([]tea.Cmd, len(m.models))
-		for i, model := range m.models {
-			m.models[i], cmds[i] = model.Update(msg)
-		}
-
-		return m, tea.Batch(cmds...)
-	case session.VimModeChangedMsg:
+		return m, m.broadcast(msg)
+	case vim.ModeChangedMsg:
 		m.mode = msg.NewMode
-
-		cmds := make([]tea.Cmd, len(m.models))
-		for i, model := range m.models {
-			m.models[i], cmds[i] = model.Update(msg)
-		}
-
-		return m, tea.Batch(cmds...)
-	case session.ActiveModelChangedMsg:
-		m.active = msg.NewModel
+		return m, m.broadcast(msg)
+	case app.ScreenChangedMsg:
+		m.screen = msg.NewScreen
 		return m, nil
+	case auth.AuthorizedMsg:
+		return m, m.broadcast(msg)
 	}
 
 	var cmd tea.Cmd
-	m.models[m.active], cmd = m.models[m.active].Update(msg)
+	m.models[m.screen], cmd = m.models[m.screen].Update(msg)
 	return m, cmd
 }
 
@@ -93,7 +93,7 @@ func (m Model) View() string {
 		Render("Friendly CLI")
 
 	mode := "NORMAL"
-	if m.mode == session.VimModeInsert {
+	if m.mode == vim.ModeInsert {
 		mode = "INSERT"
 	}
 
@@ -107,7 +107,7 @@ func (m Model) View() string {
 		Width(m.width).
 		Height(m.height-lipgloss.Height(header)-lipgloss.Height(footer)).
 		Align(lipgloss.Center, lipgloss.Center).
-		Render(m.models[m.active].View())
+		Render(m.models[m.screen].View())
 
 	return lipgloss.JoinVertical(lipgloss.Top, header, content, footer)
 }
