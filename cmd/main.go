@@ -1,20 +1,22 @@
 package main
 
 import (
-	"log"
-	"os"
-
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/friendly-social/cli/internal/root"
-	sdk "github.com/friendly-social/golang-sdk"
+	"github.com/friendly-social/cli/internal/app"
+	"github.com/friendly-social/cli/internal/auth"
+	"github.com/friendly-social/cli/internal/vim"
 )
 
 func main() {
-	client := sdk.NewProductionClient()
-	p := tea.NewProgram(root.New(client))
+	screens := []app.Screen{
+		auth.NewScreen(),
+	}
 
+	router := app.NewRouter(screens)
+	wrapper := vim.NewWrapper(router)
+
+	p := tea.NewProgram(wrapper)
 	if _, err := p.Run(); err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		panic("failed to run app router: " + err.Error())
 	}
 }
