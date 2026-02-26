@@ -1,40 +1,39 @@
-package vim
+package navigation
 
 import (
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/friendly-social/cli/internal/navigation"
 )
 
-type Mode string
+type VimMode string
 
 const (
-	ModeNormal Mode = "NORMAL"
-	ModeInsert Mode = "INSERT"
+	VimModeNormal VimMode = "NORMAL"
+	VimModeInsert VimMode = "INSERT"
 )
 
-type Wrapper struct {
-	mode  Mode
+type VimWrapper struct {
+	mode  VimMode
 	model tea.Model
 
 	width  int
 	height int
 }
 
-func NewWrapper(model tea.Model) Wrapper {
-	return Wrapper{
+func NewVimWrapper(model tea.Model) VimWrapper {
+	return VimWrapper{
 		model: model,
-		mode:  ModeNormal,
+		mode:  VimModeNormal,
 	}
 }
 
-func (w Wrapper) Init() tea.Cmd {
+func (w VimWrapper) Init() tea.Cmd {
 	return nil
 }
 
-func (w Wrapper) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (w VimWrapper) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		w.width = msg.Width
@@ -46,42 +45,42 @@ func (w Wrapper) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return w, cmd
 	case tea.KeyMsg:
 		switch w.mode {
-		case ModeNormal:
+		case VimModeNormal:
 			switch msg.String() {
 			case "i":
-				w.mode = ModeInsert
+				w.mode = VimModeInsert
 				return w, func() tea.Msg {
-					return navigation.FocusedMsg{}
+					return FocusMsg{}
 				}
 			case "h":
 				return w, func() tea.Msg {
-					return navigation.MovedMsg{Direction: navigation.DirectionLeft}
+					return MoveMsg{Direction: DirectionLeft}
 				}
 			case "j":
 				return w, func() tea.Msg {
-					return navigation.MovedMsg{Direction: navigation.DirectionDown}
+					return MoveMsg{Direction: DirectionDown}
 				}
 			case "k":
 				return w, func() tea.Msg {
-					return navigation.MovedMsg{Direction: navigation.DirectionUp}
+					return MoveMsg{Direction: DirectionUp}
 				}
 			case "l":
 				return w, func() tea.Msg {
-					return navigation.MovedMsg{Direction: navigation.DirectionRight}
+					return MoveMsg{Direction: DirectionRight}
 				}
 			case "enter":
 				return w, func() tea.Msg {
-					return navigation.InteractedMsg{}
+					return InteractMsg{}
 				}
 			default:
 				return w, nil
 			}
-		case ModeInsert:
+		case VimModeInsert:
 			switch msg.String() {
 			case "esc", "ctrl+c":
-				w.mode = ModeNormal
+				w.mode = VimModeNormal
 				return w, func() tea.Msg {
-					return navigation.UnfocusedMsg{}
+					return UnfocusMsg{}
 				}
 			}
 		}
@@ -92,7 +91,7 @@ func (w Wrapper) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return w, cmd
 }
 
-func (w Wrapper) footer() string {
+func (w VimWrapper) footer() string {
 	return lipgloss.NewStyle().
 		Align(lipgloss.Right).
 		Width(w.width).
@@ -100,7 +99,7 @@ func (w Wrapper) footer() string {
 		Render(fmt.Sprintf("--- %s ---", w.mode))
 }
 
-func (w Wrapper) View() string {
+func (w VimWrapper) View() string {
 	footer := w.footer()
 
 	content := lipgloss.NewStyle().

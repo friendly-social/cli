@@ -2,18 +2,21 @@ package main
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/friendly-social/cli/internal/app"
 	"github.com/friendly-social/cli/internal/auth"
-	"github.com/friendly-social/cli/internal/vim"
+	"github.com/friendly-social/cli/internal/feed"
+	"github.com/friendly-social/cli/internal/navigation"
+	"github.com/friendly-social/cli/internal/router"
+	"github.com/friendly-social/cli/internal/screen"
 )
 
 func main() {
-	screens := []app.Screen{
+	screens := []screen.Model{
 		auth.NewScreen(),
+		feed.NewScreen(),
 	}
 
-	router := app.NewRouter(screens)
-	wrapper := vim.NewWrapper(router)
+	router := router.NewRouter(screens)
+	wrapper := navigation.NewVimWrapper(router)
 
 	p := tea.NewProgram(wrapper)
 	if _, err := p.Run(); err != nil {

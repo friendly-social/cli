@@ -1,20 +1,21 @@
-package app
+package router
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/friendly-social/cli/internal/screen"
 )
 
 type Router struct {
-	current ScreenType
-	screens map[ScreenType]Screen
+	current screen.Type
+	screens map[screen.Type]screen.Model
 
 	width  int
 	height int
 }
 
-func NewRouter(models []Screen) Router {
-	screens := make(map[ScreenType]Screen)
+func NewRouter(models []screen.Model) Router {
+	screens := make(map[screen.Type]screen.Model)
 	for _, m := range models {
 		screens[m.ID()] = m
 	}
@@ -29,23 +30,28 @@ func (r Router) Init() tea.Cmd {
 	return tea.ClearScreen
 }
 
+func (r Router) broadcast(msg tea.Msg) (tea.Model, tea.Cmd) {
+	cmds := make([]tea.Cmd, len(r.screens))
+	for i := range r.screens {
+		r.screens[i], cmds[i] = r.screens[i].Update(msg)
+	}
+
+	return r, tea.Batch(cmds...)
+}
+
 func (r Router) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		// TEMPORARY EXIT
-		switch msg.String() {
-		case "t":
-			return r, tea.Quit
-		}
 	case tea.WindowSizeMsg:
 		r.width = msg.Width
 		r.height = msg.Height
-		msg.Height -= lipgloss.Height(r.header())
 
-		// TODO: consider a broadcast
-		var cmd tea.Cmd
-		r.screens[r.current], cmd = r.screens[r.current].Update(msg)
-		return r, cmd
+		msg.Height -= lipgloss.Height(r.header())
+		return r.broadcast(msg)
+	case BroadcastMsg:
+		return r.broadcast(msg.Inner)
+	case screen.ChangeMsg:
+		r.current = msg.NewType
+		return r, nil
 	}
 
 	var cmd tea.Cmd

@@ -1,4 +1,4 @@
-package auth
+package feed
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
@@ -15,7 +15,7 @@ func NewScreen() Screen {
 }
 
 func (s Screen) ID() screen.Type {
-	return screen.TypeAuth
+	return screen.TypeFeed
 }
 
 func (s Screen) Init() tea.Cmd {
@@ -28,13 +28,10 @@ func (s Screen) Update(msg tea.Msg) (screen.Model, tea.Cmd) {
 		s.width = msg.Width
 		s.height = msg.Height
 	case tea.KeyMsg:
-		// TEMPORARY EXIT
 		switch msg.String() {
-		case "t":
-			return s, tea.Quit
 		case "n":
 			return s, func() tea.Msg {
-				return screen.ChangeMsg{NewType: screen.TypeFeed}
+				return screen.ChangeMsg{NewType: screen.TypeAuth}
 			}
 		}
 	}
@@ -43,5 +40,5 @@ func (s Screen) Update(msg tea.Msg) (screen.Model, tea.Cmd) {
 }
 
 func (s Screen) View() string {
-	return "\nauth"
+	return "\nfeed"
 }

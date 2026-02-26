@@ -9,15 +9,15 @@ const (
 	DirectionUp
 )
 
-type MovedMsg struct {
+type MoveMsg struct {
 	Direction Direction
 }
 
-type FocusedMsg struct {
+type FocusMsg struct {
 }
 
-type UnfocusedMsg struct {
+type UnfocusMsg struct {
 }
 
-type InteractedMsg struct {
+type InteractMsg struct {
 }
