@@ -2,11 +2,11 @@ package screen
 
 import tea "github.com/charmbracelet/bubbletea"
 
-type Type int
+type Type string
 
 const (
-	TypeAuth Type = iota
-	TypeFeed
+	TypeAuth Type = "auth"
+	TypeMain Type = "main"
 )
 
 type Model interface {
@@ -15,8 +15,4 @@ type Model interface {
 	Init() tea.Cmd
 	Update(tea.Msg) (Model, tea.Cmd)
 	View() string
-}
-
-type ChangeMsg struct {
-	NewType Type
 }

@@ -2,11 +2,11 @@ package main
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/friendly-social/cli/internal/auth"
-	"github.com/friendly-social/cli/internal/feed"
 	"github.com/friendly-social/cli/internal/navigation"
 	"github.com/friendly-social/cli/internal/router"
 	"github.com/friendly-social/cli/internal/screen"
+	"github.com/friendly-social/cli/internal/screen/auth"
+	"github.com/friendly-social/cli/internal/screen/main"
 )
 
 func main() {

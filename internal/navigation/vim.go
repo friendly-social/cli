@@ -30,7 +30,7 @@ func NewVimWrapper(model tea.Model) VimWrapper {
 }
 
 func (w VimWrapper) Init() tea.Cmd {
-	return nil
+	return w.model.Init()
 }
 
 func (w VimWrapper) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -73,7 +73,9 @@ func (w VimWrapper) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return InteractMsg{}
 				}
 			default:
-				return w, nil
+				return w, func() tea.Msg {
+					return KeyMsg{Key: msg.Type}
+				}
 			}
 		case VimModeInsert:
 			switch msg.String() {

@@ -1,5 +1,7 @@
 package navigation
 
+import tea "github.com/charmbracelet/bubbletea"
+
 type Direction int
 
 const (
@@ -13,11 +15,21 @@ type MoveMsg struct {
 	Direction Direction
 }
 
+type KeyMsg struct {
+	Key tea.KeyType
+}
+
+type InteractMsg struct {
+}
+
 type FocusMsg struct {
 }
 
 type UnfocusMsg struct {
 }
 
-type InteractMsg struct {
+type SelectMsg struct {
+}
+
+type UnselectMsg struct {
 }
