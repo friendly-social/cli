@@ -10,6 +10,7 @@ import (
 	"github.com/friendly-social/cli/internal/ui"
 )
 
+// Screen is a model of authentication screen.
 type Screen struct {
 	fields  []ui.TextField
 	buttons []ui.Button
@@ -19,7 +20,8 @@ type Screen struct {
 	height int
 }
 
-func NewScreen() Screen {
+// New returns new initial model of authentication screen.
+func New() Screen {
 	ni := textinput.New()
 	ni.Placeholder = "Nickname"
 	ni.CharLimit = 256
@@ -49,7 +51,7 @@ func NewScreen() Screen {
 		buttons: []ui.Button{
 			// temp
 			ui.NewButton("Submit", func() tea.Msg {
-				return screen.ChangeMsg{NewType: screen.TypeMain}
+				return screen.ChangeMsg{NewType: screen.TypeHome}
 			}),
 			ui.NewButton("Exit", tea.Quit),
 		},

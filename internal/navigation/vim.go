@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+// VimMode represents possible modes for Vim motions.
 type VimMode string
 
 const (
@@ -14,6 +15,7 @@ const (
 	VimModeInsert VimMode = "INSERT"
 )
 
+// VimWrapper translates raw tea.KeyMsgs to navigation messages using Vim motions driven logic.
 type VimWrapper struct {
 	mode  VimMode
 	model tea.Model
@@ -22,6 +24,7 @@ type VimWrapper struct {
 	height int
 }
 
+// NewVimWrapper creates new VimWrapper based on provided model.
 func NewVimWrapper(model tea.Model) VimWrapper {
 	return VimWrapper{
 		model: model,
@@ -52,19 +55,19 @@ func (w VimWrapper) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return w, func() tea.Msg {
 					return FocusMsg{}
 				}
-			case "h":
+			case "h", "left":
 				return w, func() tea.Msg {
 					return MoveMsg{Direction: DirectionLeft}
 				}
-			case "j":
+			case "j", "down":
 				return w, func() tea.Msg {
 					return MoveMsg{Direction: DirectionDown}
 				}
-			case "k":
+			case "k", "up":
 				return w, func() tea.Msg {
 					return MoveMsg{Direction: DirectionUp}
 				}
-			case "l":
+			case "l", "right":
 				return w, func() tea.Msg {
 					return MoveMsg{Direction: DirectionRight}
 				}
@@ -74,7 +77,7 @@ func (w VimWrapper) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			default:
 				return w, func() tea.Msg {
-					return KeyMsg{Key: msg.Type}
+					return KeyMsg{Value: msg.String()}
 				}
 			}
 		case VimModeInsert:

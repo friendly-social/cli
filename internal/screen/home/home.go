@@ -1,4 +1,4 @@
-package feed
+package home
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
@@ -9,6 +9,7 @@ import (
 	"github.com/friendly-social/cli/internal/ui"
 )
 
+// Screen is a model of home screen.
 type Screen struct {
 	cursor  int
 	buttons []ui.Button
@@ -17,7 +18,8 @@ type Screen struct {
 	height int
 }
 
-func NewScreen() Screen {
+// New returns new initial model of home screen.
+func New() Screen {
 	return Screen{
 		buttons: []ui.Button{
 			ui.NewButton("Back", func() tea.Msg {
@@ -29,7 +31,7 @@ func NewScreen() Screen {
 }
 
 func (s Screen) ID() screen.Type {
-	return screen.TypeMain
+	return screen.TypeHome
 }
 
 func (s Screen) getSelected() tea.Model {
@@ -92,7 +94,7 @@ func (s Screen) View() string {
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
-		"main screen placeholder...",
+		"home screen placeholder...",
 		"",
 		lipgloss.JoinVertical(lipgloss.Center, buttonViews...),
 	)

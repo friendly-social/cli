@@ -53,7 +53,7 @@ $(OUT_DIR)/test.cache.$(COVERAGE): $(SRC) | $(OUT_DIR)
 	@set -e; \
 	if [ "$(COVERAGE)" = "1" ]; then \
 		echo ">> Testing with coverage..."; \
-		go test ./... -coverprofile=$(COVER_FILE) -covermode=atomic > $(OUT_DIR)/test.log || { \
+		go test ./internal/... -coverprofile=$(COVER_FILE) -covermode=atomic > $(OUT_DIR)/test.log || { \
 			cat $(OUT_DIR)/test.log; \
 			exit 1; \
 		}; \
@@ -65,7 +65,7 @@ $(OUT_DIR)/test.cache.$(COVERAGE): $(SRC) | $(OUT_DIR)
 		echo "$$COVERAGE_OUTPUT" | grep "total:" | awk '{print ">> Test coverage:", $$3}'; \
 	else \
 		echo ">> Testing..."; \
-		go test ./... > $(OUT_DIR)/test.log || { \
+		go test ./internal/... > $(OUT_DIR)/test.log || { \
 			cat $(OUT_DIR)/test.log; \
 			exit 1; \
 		}; \

@@ -6,6 +6,7 @@ import (
 	"github.com/friendly-social/cli/internal/screen"
 )
 
+// Router orchestrates multiple screens.
 type Router struct {
 	current screen.Type
 	screens map[screen.Type]screen.Model
@@ -14,6 +15,7 @@ type Router struct {
 	height int
 }
 
+// NewRouter creates new Router based on provided screens.
 func NewRouter(models []screen.Model) Router {
 	screens := make(map[screen.Type]screen.Model)
 	for _, m := range models {

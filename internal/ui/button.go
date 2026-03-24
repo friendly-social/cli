@@ -6,8 +6,9 @@ import (
 	"github.com/friendly-social/cli/internal/navigation"
 )
 
+// Button is an implementation of button, with which you can interact, and which can be either selected or not.
 type Button struct {
-	cmd      tea.Cmd
+	action   tea.Cmd
 	title    string
 	selected bool
 
@@ -15,9 +16,10 @@ type Button struct {
 	unselectedStyle lipgloss.Style
 }
 
-func NewButton(title string, cmd tea.Cmd) Button {
+// NewButton creates new Button instance with provided title and action that will be returned on interaction.
+func NewButton(title string, action tea.Cmd) Button {
 	return Button{
-		cmd:      cmd,
+		action:   action,
 		title:    title,
 		selected: false,
 
@@ -37,7 +39,7 @@ func (b Button) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case navigation.UnselectMsg:
 		b.selected = false
 	case navigation.InteractMsg:
-		return b, b.cmd
+		return b, b.action
 	}
 
 	return b, nil

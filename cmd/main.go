@@ -6,13 +6,13 @@ import (
 	"github.com/friendly-social/cli/internal/router"
 	"github.com/friendly-social/cli/internal/screen"
 	"github.com/friendly-social/cli/internal/screen/auth"
-	"github.com/friendly-social/cli/internal/screen/main"
+	"github.com/friendly-social/cli/internal/screen/home"
 )
 
 func main() {
 	screens := []screen.Model{
-		auth.NewScreen(),
-		feed.NewScreen(),
+		auth.New(),
+		home.New(),
 	}
 
 	router := router.NewRouter(screens)
