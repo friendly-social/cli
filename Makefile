@@ -2,18 +2,11 @@
 OUT_DIR := ./out
 COVER_FILE := $(OUT_DIR)/coverage.out
 
-# testing parameters
-VERBOSE ?= 0
-COVERAGE ?= 0
-
 # recipes list
-.PHONY: test lint fmt clean
+.PHONY: lint fmt clean
 
 # source files for tracking changes
 SRC := $(shell find . -type f -name '*.go')
-
-# public recipe for testing (with or without coverage)
-test: $(OUT_DIR)/test.cache.$(COVERAGE)
 
 # public recipe for formatting
 fmt: $(OUT_DIR)/fmt.cache
@@ -48,30 +41,3 @@ $(OUT_DIR)/lint.cache: $(SRC) | $(OUT_DIR)
 	@echo ">> Linted."
 	@touch $@
 
-# testing source code (with or without coverage)
-$(OUT_DIR)/test.cache.$(COVERAGE): $(SRC) | $(OUT_DIR)
-	@set -e; \
-	if [ "$(COVERAGE)" = "1" ]; then \
-		echo ">> Testing with coverage..."; \
-		go test ./internal/... -coverprofile=$(COVER_FILE) -covermode=atomic > $(OUT_DIR)/test.log || { \
-			cat $(OUT_DIR)/test.log; \
-			exit 1; \
-		}; \
-		grep -v "/dummy" $(COVER_FILE) > $(COVER_FILE).tmp && mv $(COVER_FILE).tmp $(COVER_FILE); \
-		COVERAGE_OUTPUT=$$(go tool cover -func=$(COVER_FILE)); \
-		if [ "$(VERBOSE)" = "1" ]; then \
-			echo "$$COVERAGE_OUTPUT" | grep -v "total:"; \
-		fi; \
-		echo "$$COVERAGE_OUTPUT" | grep "total:" | awk '{print ">> Test coverage:", $$3}'; \
-	else \
-		echo ">> Testing..."; \
-		go test ./internal/... > $(OUT_DIR)/test.log || { \
-			cat $(OUT_DIR)/test.log; \
-			exit 1; \
-		}; \
-		if [ "$(VERBOSE)" = "1" ]; then \
-			cat $(OUT_DIR)/test.log; \
-		fi; \
-		echo ">> All tests passed."; \
-	fi;
-	@touch $@

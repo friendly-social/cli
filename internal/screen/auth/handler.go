@@ -1,88 +1,23 @@
 package auth
 
 import (
-	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/friendly-social/cli/internal/navigation"
 	"github.com/friendly-social/cli/internal/router"
 	"github.com/friendly-social/cli/internal/screen"
+	"github.com/friendly-social/cli/internal/system"
 	"github.com/friendly-social/cli/internal/ui"
 )
-
-// Screen is a model of authentication screen.
-type Screen struct {
-	fields  []ui.TextField
-	buttons []ui.Button
-	cursor  int
-
-	width  int
-	height int
-}
-
-// New returns new initial model of authentication screen.
-func New() Screen {
-	ni := textinput.New()
-	ni.Placeholder = "Nickname"
-	ni.CharLimit = 256
-	ni.Prompt = ""
-
-	di := textinput.New()
-	di.Placeholder = "Description"
-	di.CharLimit = 1024
-	di.Prompt = ""
-
-	ii := textinput.New()
-	ii.Placeholder = "Interests"
-	ii.Prompt = ""
-
-	si := textinput.New()
-	si.Placeholder = "Social Link"
-	si.CharLimit = 1024
-	si.Prompt = ""
-
-	return Screen{
-		fields: []ui.TextField{
-			ui.NewTextField(ni),
-			ui.NewTextField(di),
-			ui.NewTextField(ii),
-			ui.NewTextField(si),
-		},
-		buttons: []ui.Button{
-			// temp
-			ui.NewButton("Submit", func() tea.Msg {
-				return screen.ChangeMsg{NewType: screen.TypeHome}
-			}),
-			ui.NewButton("Exit", tea.Quit),
-		},
-	}
-}
 
 func (s Screen) ID() screen.Type {
 	return screen.TypeAuth
 }
 
-func (s Screen) getSelected() tea.Model {
-	if s.cursor < len(s.fields) {
-		return s.fields[s.cursor]
-	}
-
-	return s.buttons[s.cursor-len(s.fields)]
-}
-
-func (s Screen) setSelected(m tea.Model) {
-	if s.cursor < len(s.fields) {
-		s.fields[s.cursor] = m.(ui.TextField)
-		return
-	}
-
-	s.buttons[s.cursor-len(s.fields)] = m.(ui.Button)
-}
-
 func (s Screen) Init() tea.Cmd {
-	return func() tea.Msg {
+	return tea.Sequence(s.initCmd(), func() tea.Msg {
 		return router.TargetMsg{Type: s.ID(), Inner: navigation.SelectMsg{}}
-	}
+	})
 }
 
 func (s Screen) Update(msg tea.Msg) (screen.Model, tea.Cmd) {
@@ -108,12 +43,19 @@ func (s Screen) Update(msg tea.Msg) (screen.Model, tea.Cmd) {
 		s.setSelected(second)
 
 		return s, tea.Sequence(cmds...)
+	case AuthMsg:
+		return s, func() tea.Msg {
+			return screen.ChangeMsg{NewType: screen.TypeHome}
+		}
+	case system.ErrorMsg:
+		var newLabel tea.Model
+		newLabel, cmd := s.errorLabel.Update(ui.LabelChangeMsg{Value: msg.Value.Error()})
+
+		s.errorLabel = newLabel.(ui.Label)
+		return s, cmd
 	}
 
-	var cmd tea.Cmd
-	var model tea.Model
-
-	model, cmd = s.getSelected().Update(msg)
+	model, cmd := s.getSelected().Update(msg)
 	s.setSelected(model)
 	return s, cmd
 }
@@ -146,5 +88,7 @@ func (s Screen) View() string {
 		lipgloss.JoinVertical(lipgloss.Center, inputViews...),
 		"",
 		lipgloss.JoinVertical(lipgloss.Center, buttonViews...),
+		"",
+		s.errorLabel.Value(),
 	)
 }
