@@ -1,2 +1,2 @@
-// Package navigation abstracts user interactions between different app components.
+// Package navigation abstracts user input and translates it into ui package format.
 package navigation

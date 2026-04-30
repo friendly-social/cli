@@ -4,34 +4,33 @@ import (
 	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/friendly-social/cli/internal/navigation"
 )
 
-// TextField is an abstraction over textinput.Model for embedding it to navigation interface.
-type TextField struct {
+// Field is an abstraction over textinput.Model for embedding it into interface.
+type Field struct {
 	input textinput.Model
 }
 
-// NewTextField creates new TextField based on provided textinput.Model.
-func NewTextField(input textinput.Model) TextField {
+// NewField creates new Field based on provided textinput.Model.
+func NewField(input textinput.Model) *Field {
 	input.Blur()
-	return TextField{
+	return &Field{
 		input: input,
 	}
 }
 
-func (t TextField) Init() tea.Cmd {
+func (t *Field) Init() tea.Cmd {
 	return nil
 }
 
-func (t TextField) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (t *Field) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg.(type) {
-	case navigation.FocusMsg:
+	case FocusMsg:
 		return t, tea.Batch(
 			t.input.Focus(),
 			t.input.Cursor.SetMode(cursor.CursorBlink),
 		)
-	case navigation.UnfocusMsg:
+	case UnfocusMsg:
 		t.input.Blur()
 		return t, t.input.Cursor.SetMode(cursor.CursorStatic)
 	}
@@ -41,11 +40,11 @@ func (t TextField) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return t, cmd
 }
 
-func (t TextField) View() string {
+func (t *Field) View() string {
 	return t.input.View()
 }
 
 // Value returns current filled string.
-func (t TextField) Value() string {
+func (t *Field) Value() string {
 	return t.input.Value()
 }

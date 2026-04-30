@@ -40,4 +40,3 @@ $(OUT_DIR)/lint.cache: $(SRC) | $(OUT_DIR)
 	};
 	@echo ">> Linted."
 	@touch $@
-

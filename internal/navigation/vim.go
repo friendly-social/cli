@@ -5,6 +5,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/friendly-social/cli/internal/ui"
 )
 
 // VimMode represents possible modes for Vim motions.
@@ -15,7 +16,7 @@ const (
 	VimModeInsert VimMode = "INSERT"
 )
 
-// VimWrapper translates raw tea.KeyMsgs to navigation messages using Vim motions driven logic.
+// VimWrapper translates raw tea.KeyMsgs to UI messages using Vim motions driven logic.
 type VimWrapper struct {
 	mode  VimMode
 	model tea.Model
@@ -53,31 +54,27 @@ func (w VimWrapper) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "i":
 				w.mode = VimModeInsert
 				return w, func() tea.Msg {
-					return FocusMsg{}
+					return ui.FocusMsg{}
 				}
 			case "h", "left":
 				return w, func() tea.Msg {
-					return MoveMsg{Direction: DirectionLeft}
+					return ui.MoveMsg{Direction: ui.DirectionLeft}
 				}
 			case "j", "down":
 				return w, func() tea.Msg {
-					return MoveMsg{Direction: DirectionDown}
+					return ui.MoveMsg{Direction: ui.DirectionDown}
 				}
 			case "k", "up":
 				return w, func() tea.Msg {
-					return MoveMsg{Direction: DirectionUp}
+					return ui.MoveMsg{Direction: ui.DirectionUp}
 				}
 			case "l", "right":
 				return w, func() tea.Msg {
-					return MoveMsg{Direction: DirectionRight}
+					return ui.MoveMsg{Direction: ui.DirectionRight}
 				}
 			case "enter":
 				return w, func() tea.Msg {
-					return InteractMsg{}
-				}
-			default:
-				return w, func() tea.Msg {
-					return KeyMsg{Value: msg.String()}
+					return ui.InteractMsg{}
 				}
 			}
 		case VimModeInsert:
@@ -85,7 +82,7 @@ func (w VimWrapper) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "esc", "ctrl+c":
 				w.mode = VimModeNormal
 				return w, func() tea.Msg {
-					return UnfocusMsg{}
+					return ui.UnfocusMsg{}
 				}
 			}
 		}
@@ -98,7 +95,7 @@ func (w VimWrapper) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (w VimWrapper) footer() string {
 	return lipgloss.NewStyle().
-		Align(lipgloss.Right).
+		Align(lipgloss.Left).
 		Width(w.width).
 		Border(lipgloss.InnerHalfBlockBorder(), true, false, false, false).
 		Render(fmt.Sprintf("--- %s ---", w.mode))

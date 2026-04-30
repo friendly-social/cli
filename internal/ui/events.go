@@ -1,4 +1,4 @@
-package navigation
+package ui
 
 // Direction represents possible moving directions.
 type Direction int
@@ -13,11 +13,6 @@ const (
 // MoveMsg shows that user wants to move to a different component in some direction.
 type MoveMsg struct {
 	Direction Direction
-}
-
-// KeyMsg abstracts some raw key that couldn't be mapped to other messages on a navigation layer.
-type KeyMsg struct {
-	Value string
 }
 
 // InteractMsg shows that user wants to interact with some component.
