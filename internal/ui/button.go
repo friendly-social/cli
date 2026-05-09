@@ -5,24 +5,22 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+var buttonSelectedStyle = lipgloss.NewStyle().Background(lipgloss.Color("#7F00FF"))
+var buttonUnselectedStyle = lipgloss.NewStyle().Background(lipgloss.Color("#808080"))
+
 // Button is an implementation of button, with which you can interact, and which can be either selected or not.
 type Button struct {
-	action   tea.Cmd
-	title    string
 	selected bool
 
-	selectedStyle   lipgloss.Style
-	unselectedStyle lipgloss.Style
+	title  string
+	action tea.Cmd
 }
 
 // NewButton creates new Button instance with provided title and action that will be returned on interaction.
 func NewButton(title string, action tea.Cmd) *Button {
 	return &Button{
-		action: action,
 		title:  title,
-
-		selectedStyle:   lipgloss.NewStyle().Background(lipgloss.Color("#7f00ff")),
-		unselectedStyle: lipgloss.NewStyle().Background(lipgloss.Color("#808080")),
+		action: action,
 	}
 }
 
@@ -45,8 +43,8 @@ func (b *Button) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (b *Button) View() string {
 	if b.selected {
-		return b.selectedStyle.Render(b.title)
+		return buttonSelectedStyle.Render(b.title)
 	}
 
-	return b.unselectedStyle.Render(b.title)
+	return buttonUnselectedStyle.Render(b.title)
 }

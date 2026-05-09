@@ -9,3 +9,5 @@ type ChangeMsg struct {
 type ErrorMsg struct {
 	Value error
 }
+
+type TickMsg struct{}

@@ -1,9 +1,10 @@
 # general variables
 OUT_DIR := ./out
+BIN_DIR := ./bin
 COVER_FILE := $(OUT_DIR)/coverage.out
 
 # recipes list
-.PHONY: lint fmt clean
+.PHONY: fmt lint run clean
 
 # source files for tracking changes
 SRC := $(shell find . -type f -name '*.go')
@@ -13,6 +14,14 @@ fmt: $(OUT_DIR)/fmt.cache
 
 # public recipe for linting
 lint: $(OUT_DIR)/lint.cache
+
+# public recipe for building
+build: $(OUT_DIR)/build.cache
+
+# running
+run: build
+	@echo ">> Running CLI..."
+	@$(BIN_DIR)/cli
 
 # cleaning up garbage
 clean:
@@ -39,4 +48,11 @@ $(OUT_DIR)/lint.cache: $(SRC) | $(OUT_DIR)
 		exit 1; \
 	};
 	@echo ">> Linted."
+	@touch $@
+
+# building
+$(OUT_DIR)/build.cache: $(SRC) | $(OUT_DIR)
+	@echo ">> Building CLI..."
+	@GOOS=linux GOARCH=amd64 go build -o $(BIN_DIR)/cli cmd/main.go
+	@echo ">> Built in $(BIN_DIR)/cli"
 	@touch $@

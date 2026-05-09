@@ -8,43 +8,47 @@ import (
 
 // Field is an abstraction over textinput.Model for embedding it into interface.
 type Field struct {
-	input textinput.Model
+	input *textinput.Model
 }
 
 // NewField creates new Field based on provided textinput.Model.
 func NewField(input textinput.Model) *Field {
 	input.Blur()
 	return &Field{
-		input: input,
+		input: &input,
 	}
 }
 
-func (t *Field) Init() tea.Cmd {
+func (f *Field) Init() tea.Cmd {
 	return nil
 }
 
-func (t *Field) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (f *Field) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg.(type) {
 	case FocusMsg:
-		return t, tea.Batch(
-			t.input.Focus(),
-			t.input.Cursor.SetMode(cursor.CursorBlink),
+		return f, tea.Batch(
+			f.input.Focus(),
+			f.input.Cursor.SetMode(cursor.CursorBlink),
 		)
 	case UnfocusMsg:
-		t.input.Blur()
-		return t, t.input.Cursor.SetMode(cursor.CursorStatic)
+		f.input.Blur()
+		return f, f.input.Cursor.SetMode(cursor.CursorStatic)
 	}
 
-	var cmd tea.Cmd
-	t.input, cmd = t.input.Update(msg)
-	return t, cmd
+	model, cmd := f.input.Update(msg)
+	*f.input = model
+	return f, cmd
 }
 
-func (t *Field) View() string {
-	return t.input.View()
+func (f *Field) View() string {
+	return f.input.View()
 }
 
 // Value returns current filled string.
-func (t *Field) Value() string {
-	return t.input.Value()
+func (f *Field) Value() string {
+	return f.input.Value()
+}
+
+func (f *Field) Raw() *textinput.Model {
+	return f.input
 }

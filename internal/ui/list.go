@@ -5,14 +5,16 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+var listUnselectedStyle = lipgloss.NewStyle().PaddingLeft(3)
+
 type List struct {
 	cursor int
-	fields []tea.Model
+	items  []tea.Model
 }
 
-func NewList(fields ...tea.Model) *List {
+func NewList(items ...tea.Model) *List {
 	return &List{
-		fields: fields,
+		items: items,
 	}
 }
 
@@ -24,35 +26,35 @@ func (l *List) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case MoveMsg:
 		cmds := make([]tea.Cmd, 2)
-		l.fields[l.cursor], cmds[0] = l.fields[l.cursor].Update(UnselectMsg{})
+		l.items[l.cursor], cmds[0] = l.items[l.cursor].Update(UnselectMsg{})
 
 		if msg.Direction == DirectionDown {
-			l.cursor = min(l.cursor+1, len(l.fields)-1)
+			l.cursor = min(l.cursor+1, len(l.items)-1)
 		}
 
 		if msg.Direction == DirectionUp {
 			l.cursor = max(l.cursor-1, 0)
 		}
 
-		l.fields[l.cursor], cmds[1] = l.fields[l.cursor].Update(SelectMsg{})
+		l.items[l.cursor], cmds[1] = l.items[l.cursor].Update(SelectMsg{})
 		return l, tea.Batch(cmds...)
 	}
 
 	var cmd tea.Cmd
-	l.fields[l.cursor], cmd = l.fields[l.cursor].Update(msg)
+	l.items[l.cursor], cmd = l.items[l.cursor].Update(msg)
 	return l, cmd
 }
 
 func (l *List) View() string {
-	views := make([]string, len(l.fields))
-	for i, input := range l.fields {
-		cursor := ""
+	views := make([]string, len(l.items))
+	for i, input := range l.items {
 		if l.cursor == i {
-			cursor = "-> "
+			views[i] = lipgloss.JoinHorizontal(lipgloss.Left, "-> ", input.View())
+			continue
 		}
 
-		views[i] = lipgloss.JoinHorizontal(lipgloss.Left, cursor, input.View())
+		views[i] = listUnselectedStyle.Render(input.View())
 	}
 
-	return lipgloss.JoinVertical(lipgloss.Center, views...)
+	return lipgloss.JoinVertical(lipgloss.Left, views...)
 }

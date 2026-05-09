@@ -14,8 +14,9 @@ type Screen struct {
 		list *ui.List
 
 		buttons struct {
-			exit *ui.Button
-			back *ui.Button
+			register *ui.Button
+			profile  *ui.Button
+			exit     *ui.Button
 		}
 	}
 }
@@ -24,19 +25,19 @@ type Screen struct {
 func New() Screen {
 	result := Screen{}
 
+	result.content.buttons.register = ui.NewButton("Register", func() tea.Msg { return screen.ChangeMsg{NewType: screen.TypeRegister} })
+	result.content.buttons.profile = ui.NewButton("Profile", func() tea.Msg { return screen.ChangeMsg{NewType: screen.TypeProfile} })
 	result.content.buttons.exit = ui.NewButton("Exit", tea.Quit)
-	result.content.buttons.back = ui.NewButton("Back", func() tea.Msg {
-		return screen.ChangeMsg{NewType: screen.TypeAuth}
-	})
 
 	result.content.list = ui.NewList(
-		result.content.buttons.back,
+		result.content.buttons.profile,
+		result.content.buttons.register,
 		result.content.buttons.exit)
 
 	return result
 }
 
-func (s Screen) ID() screen.Type {
+func (Screen) ID() screen.Type {
 	return screen.TypeHome
 }
 
@@ -54,7 +55,7 @@ func (s Screen) Update(msg tea.Msg) (screen.Model, tea.Cmd) {
 func (s Screen) View() string {
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
-		"home screen placeholder...",
+		"home screen",
 		"",
 		s.content.list.View(),
 	)

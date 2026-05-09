@@ -7,8 +7,9 @@ import (
 	"github.com/friendly-social/cli/internal/navigation"
 	"github.com/friendly-social/cli/internal/router"
 	"github.com/friendly-social/cli/internal/screen"
-	"github.com/friendly-social/cli/internal/screen/auth"
 	"github.com/friendly-social/cli/internal/screen/home"
+	"github.com/friendly-social/cli/internal/screen/profile"
+	"github.com/friendly-social/cli/internal/screen/register"
 	sdk "github.com/friendly-social/golang-sdk"
 )
 
@@ -19,9 +20,11 @@ func main() {
 	}
 	defer f.Close() //nolint:errcheck
 
+	client := sdk.NewClient()
 	screens := []screen.Model{
-		auth.New(auth.NewService(sdk.NewClient())),
 		home.New(),
+		profile.New(profile.NewService(client)),
+		register.New(register.NewService(client)),
 	}
 
 	router := router.NewRouter(screens)

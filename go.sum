@@ -26,8 +26,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f h1:Y/CXytFA4m6baUTXGLOoWe4PQhGxaX0KpnayAqC48p4=
 github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f/go.mod h1:vw97MGsxSvLiUE2X8qFplwetxpGLQrlU1Q9AUEIzCaM=
-github.com/friendly-social/golang-sdk v0.3.1 h1:dUp4LN9HTORMDy9RpsIMe3Hw0o4CWgAQSIAs7AqAIUg=
-github.com/friendly-social/golang-sdk v0.3.1/go.mod h1:ET0XXl1bX6yZnToMIJGSW4GTSNnpaYlkvALYA8spSq0=
+github.com/friendly-social/golang-sdk v0.4.0 h1:WHZikJ/wa0Onx8laUujvCBBrs/pcMDtYDszIcB/MIjk=
+github.com/friendly-social/golang-sdk v0.4.0/go.mod h1:ET0XXl1bX6yZnToMIJGSW4GTSNnpaYlkvALYA8spSq0=
 github.com/h2non/gock v1.2.0 h1:K6ol8rfrRkUOefooBC8elXoaNGYkpp7y2qcxGG6BzUE=
 github.com/h2non/gock v1.2.0/go.mod h1:tNhoxHYW2W42cYkYb1WqzdbYIieALC99kpYr7rH/BQk=
 github.com/h2non/parth v0.0.0-20190131123155-b4df798d6542 h1:2VTzZjLZBgl62/EtslCrtky5vbi9dd7HrQPQIx6wqiw=
