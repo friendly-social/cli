@@ -12,19 +12,16 @@ import (
 )
 
 const (
-	saveFolder = "friendly"
 	saveFile   = "user.json"
+	saveFolder = "friendly"
 )
 
-// AuthMsg singals that user authenticated with new credentials.
-type AuthMsg struct {
-	User *sdk.Authorization
-}
-
+// Service provides registration logic.
 type Service struct {
 	client *sdk.Client
 }
 
+// NewService creates Service from sdk.Client.
 func NewService(client *sdk.Client) *Service {
 	return &Service{
 		client: client,
@@ -34,7 +31,7 @@ func NewService(client *sdk.Client) *Service {
 func (s *Service) load() (*sdk.Authorization, error) {
 	cacheDir, err := os.UserCacheDir()
 	if err != nil {
-		return nil, fmt.Errorf("auth: failed to get user cache dir: %w", err)
+		return nil, fmt.Errorf("register: failed to get user cache dir: %w", err)
 	}
 
 	saveFile := filepath.Join(cacheDir, saveFolder, saveFile)
@@ -43,36 +40,36 @@ func (s *Service) load() (*sdk.Authorization, error) {
 		return nil, nil
 	}
 
-	authBytes, err := os.ReadFile(saveFile)
+	userBytes, err := os.ReadFile(saveFile)
 	if err != nil {
-		return nil, fmt.Errorf("auth: failed to read authotization bytes: %w", err)
+		return nil, fmt.Errorf("register: failed to read user bytes: %w", err)
 	}
 
-	authorization := new(sdk.Authorization)
-	err = json.Unmarshal(authBytes, authorization)
+	user := new(sdk.Authorization)
+	err = json.Unmarshal(userBytes, user)
 	if err != nil {
-		return nil, fmt.Errorf("auth: failed to unmarshal authorization bytes: %w", err)
+		return nil, fmt.Errorf("register: failed to unmarshal user bytes: %w", err)
 	}
 
-	return authorization, nil
+	return user, nil
 }
 
-func (s *Service) auth(nicknameString, descriptionString, interestsString, socialString string) (*sdk.Authorization, error) {
+func (s *Service) register(nicknameString, descriptionString, interestsString, socialString string) (*sdk.Authorization, error) {
 	nickname, err := sdk.NewNickname(nicknameString)
 	if err != nil {
-		return nil, fmt.Errorf("auth: failed to create nickname: %w", err)
+		return nil, fmt.Errorf("register: failed to create nickname: %w", err)
 	}
 
 	description, err := sdk.NewUserDescription(descriptionString)
 	if err != nil {
-		return nil, fmt.Errorf("auth: failed to create description: %w", err)
+		return nil, fmt.Errorf("register: failed to create description: %w", err)
 	}
 
 	interestsSlice := make([]sdk.Interest, 0)
 	for interestStr := range strings.SplitSeq(interestsString, ",") {
 		interest, err := sdk.NewInterest(strings.TrimSpace(interestStr))
 		if err != nil {
-			return nil, fmt.Errorf("auth: failed to create interest: %w", err)
+			return nil, fmt.Errorf("register: failed to create interest: %w", err)
 		}
 
 		interestsSlice = append(interestsSlice, interest)
@@ -80,40 +77,40 @@ func (s *Service) auth(nicknameString, descriptionString, interestsString, socia
 
 	interests, err := sdk.NewInterests(interestsSlice...)
 	if err != nil {
-		return nil, fmt.Errorf("auth: failed to create interests: %w", err)
+		return nil, fmt.Errorf("register: failed to create interests: %w", err)
 	}
 
 	socialLink, err := sdk.NewSocialLink(socialString)
 	if err != nil {
-		return nil, fmt.Errorf("auth: failed to create social link: %w", err)
+		return nil, fmt.Errorf("register: failed to create social link: %w", err)
 	}
 
-	authorization, err := s.client.Register(context.Background(), nickname, description, interests, nil, socialLink)
+	user, err := s.client.Register(context.Background(), nickname, description, interests, nil, socialLink)
 	if err != nil {
-		return nil, fmt.Errorf("auth: failed to authorize: %w", err)
+		return nil, fmt.Errorf("register: failed to register: %w", err)
 	}
 
 	cacheFolder, err := os.UserCacheDir()
 	if err != nil {
-		return nil, fmt.Errorf("auth: failed to get user cache directory: %w", err)
+		return nil, fmt.Errorf("register: failed to get user cache directory: %w", err)
 	}
 
 	saveFolder := filepath.Join(cacheFolder, saveFolder)
 	err = os.MkdirAll(saveFolder, 0700)
 	if err != nil {
-		return nil, fmt.Errorf("auth: failed to create save folder: %w", err)
+		return nil, fmt.Errorf("register: failed to create save folder: %w", err)
 	}
 
-	authBytes, err := json.Marshal(authorization)
+	userBytes, err := json.Marshal(user)
 	if err != nil {
-		return nil, fmt.Errorf("auth: failed to marshal authorization data: %w", err)
+		return nil, fmt.Errorf("register: failed to marshal user data: %w", err)
 	}
 
 	saveFile := filepath.Join(saveFolder, saveFile)
-	err = os.WriteFile(saveFile, authBytes, 0600)
+	err = os.WriteFile(saveFile, userBytes, 0600)
 	if err != nil {
-		return nil, fmt.Errorf("auth: failed to write authorization to save file: %w", err)
+		return nil, fmt.Errorf("register: failed to write user data to save file: %w", err)
 	}
 
-	return authorization, nil
+	return user, nil
 }

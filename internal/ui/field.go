@@ -6,7 +6,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// Field is an abstraction over textinput.Model for embedding it into interface.
+// Field is an abstraction over textinput.Model for embedding it into ui package contract.
 type Field struct {
 	input *textinput.Model
 }
@@ -49,6 +49,7 @@ func (f *Field) Value() string {
 	return f.input.Value()
 }
 
+// Raw returns underlying textinput.Model.
 func (f *Field) Raw() *textinput.Model {
 	return f.input
 }

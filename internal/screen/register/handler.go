@@ -6,10 +6,11 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/friendly-social/cli/internal/router"
 	"github.com/friendly-social/cli/internal/screen"
+	"github.com/friendly-social/cli/internal/screen/auth"
 	"github.com/friendly-social/cli/internal/ui"
 )
 
-// Screen is a model of authentication screen.
+// Screen is a model of registration screen.
 type Screen struct {
 	service *Service
 
@@ -28,7 +29,7 @@ type Screen struct {
 		buttons []*ui.Button
 		button  struct {
 			submit *ui.Button
-			exit   *ui.Button
+			back   *ui.Button
 		}
 	}
 
@@ -44,7 +45,7 @@ func field(label string, limit int) *ui.Field {
 	return ui.NewField(field)
 }
 
-// New returns new initial model of authentication screen.
+// New creates new Screen from Service.
 func New(service *Service) Screen {
 	result := Screen{
 		service: service,
@@ -55,11 +56,10 @@ func New(service *Service) Screen {
 	result.content.field.interests = field("Interests", 0)
 	result.content.field.social = field("Social Link", 1024)
 
-	result.content.button.exit = ui.NewButton("Exit", tea.Quit)
 	result.content.button.submit = ui.NewButton("Submit",
 		func() tea.Msg {
 			result.content.status.Set("authenticating...")
-			auth, err := service.auth(
+			user, err := service.register(
 				result.content.field.nickname.Value(),
 				result.content.field.description.Value(),
 				result.content.field.interests.Value(),
@@ -69,8 +69,11 @@ func New(service *Service) Screen {
 				return screen.ErrorMsg{Value: err}
 			}
 
-			return router.BroadcastMsg{Inner: AuthMsg{User: auth}}
+			return router.BroadcastMsg{Inner: auth.LoginMsg{User: user}}
 		})
+	result.content.button.back = ui.NewButton("Back", func() tea.Msg {
+		return screen.ChangeMsg{NewType: screen.TypeHome}
+	})
 
 	result.content.fields = []*ui.Field{
 		result.content.field.nickname,
@@ -81,7 +84,7 @@ func New(service *Service) Screen {
 
 	result.content.buttons = []*ui.Button{
 		result.content.button.submit,
-		result.content.button.exit,
+		result.content.button.back,
 	}
 
 	result.content.status = ui.NewLabel("")
@@ -91,7 +94,7 @@ func New(service *Service) Screen {
 		result.content.field.interests,
 		result.content.field.social,
 		result.content.button.submit,
-		result.content.button.exit)
+		result.content.button.back)
 
 	return result
 }
@@ -103,16 +106,16 @@ func (Screen) ID() screen.Type {
 func (s Screen) Init() tea.Cmd {
 	return tea.Sequence(
 		func() tea.Msg {
-			auth, err := s.service.load()
+			user, err := s.service.load()
 			if err != nil {
 				return screen.ErrorMsg{Value: err}
 			}
 
-			if auth == nil {
+			if user == nil {
 				return nil
 			}
 
-			return router.BroadcastMsg{Inner: AuthMsg{User: auth}}
+			return router.BroadcastMsg{Inner: auth.LoginMsg{User: user}}
 		},
 		func() tea.Msg {
 			return router.TargetMsg{Type: s.ID(), Inner: ui.SelectMsg{}}
@@ -124,7 +127,7 @@ func (s Screen) Update(msg tea.Msg) (screen.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		s.width = msg.Width
 		s.height = msg.Height
-	case AuthMsg:
+	case auth.LoginMsg:
 		return s, func() tea.Msg {
 			return screen.ChangeMsg{NewType: screen.TypeHome}
 		}

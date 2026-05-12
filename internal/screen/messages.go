@@ -10,4 +10,5 @@ type ErrorMsg struct {
 	Value error
 }
 
+// TickMsg signalizes that screen must be updated.
 type TickMsg struct{}

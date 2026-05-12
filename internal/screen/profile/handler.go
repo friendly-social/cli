@@ -8,10 +8,11 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/friendly-social/cli/internal/router"
 	"github.com/friendly-social/cli/internal/screen"
-	"github.com/friendly-social/cli/internal/screen/register"
+	"github.com/friendly-social/cli/internal/screen/auth"
 	"github.com/friendly-social/cli/internal/ui"
 )
 
+// Screen is a model of profile screen.
 type Screen struct {
 	service *Service
 
@@ -25,13 +26,14 @@ type Screen struct {
 	}
 }
 
+// New creates new Screen from Service.
 func New(service *Service) Screen {
 	result := Screen{
 		service: service,
 	}
 
 	result.content.label = ui.NewLabel("")
-	result.content.button.home = ui.NewButton("Home", func() tea.Msg {
+	result.content.button.home = ui.NewButton("Back", func() tea.Msg {
 		return screen.ChangeMsg{NewType: screen.TypeHome}
 	})
 
@@ -53,10 +55,10 @@ func (s Screen) Init() tea.Cmd {
 
 func (s Screen) Update(msg tea.Msg) (screen.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case register.AuthMsg:
+	case auth.LoginMsg:
 		s.content.label.Set("loading...")
 		return s, func() tea.Msg {
-			self, err := s.service.GetDetails(msg.User)
+			self, err := s.service.get(msg.User)
 			if err != nil {
 				s.content.label.Set(fmt.Sprintf("error loading profile: %s", err.Error()))
 				return screen.TickMsg{}

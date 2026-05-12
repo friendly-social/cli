@@ -14,8 +14,8 @@ type Screen struct {
 		list *ui.List
 
 		buttons struct {
-			register *ui.Button
 			profile  *ui.Button
+			register *ui.Button
 			exit     *ui.Button
 		}
 	}
@@ -25,8 +25,12 @@ type Screen struct {
 func New() Screen {
 	result := Screen{}
 
-	result.content.buttons.register = ui.NewButton("Register", func() tea.Msg { return screen.ChangeMsg{NewType: screen.TypeRegister} })
-	result.content.buttons.profile = ui.NewButton("Profile", func() tea.Msg { return screen.ChangeMsg{NewType: screen.TypeProfile} })
+	result.content.buttons.register = ui.NewButton("Register", func() tea.Msg {
+		return screen.ChangeMsg{NewType: screen.TypeRegister}
+	})
+	result.content.buttons.profile = ui.NewButton("Profile", func() tea.Msg {
+		return screen.ChangeMsg{NewType: screen.TypeProfile}
+	})
 	result.content.buttons.exit = ui.NewButton("Exit", tea.Quit)
 
 	result.content.list = ui.NewList(

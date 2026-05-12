@@ -7,11 +7,13 @@ import (
 
 var listUnselectedStyle = lipgloss.NewStyle().PaddingLeft(3)
 
+// List represents collection of elements that you can select and interact with.
 type List struct {
 	cursor int
 	items  []tea.Model
 }
 
+// NewList creates new List based on the list of items.
 func NewList(items ...tea.Model) *List {
 	return &List{
 		items: items,

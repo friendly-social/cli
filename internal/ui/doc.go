@@ -1,2 +1,2 @@
-// Package ui contains reusable components for composing UI.
+// Package ui contains reusable components for composing user interface.
 package ui

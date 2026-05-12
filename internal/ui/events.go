@@ -16,21 +16,16 @@ type MoveMsg struct {
 }
 
 // InteractMsg shows that user wants to interact with some component.
-type InteractMsg struct {
-}
+type InteractMsg struct{}
 
 // FocusMsg shows that user wants to focus on some component for interacting with it further.
-type FocusMsg struct {
-}
+type FocusMsg struct{}
 
 // UnfocucMsg shows that user no longer wants to focus on current component.
-type UnfocusMsg struct {
-}
+type UnfocusMsg struct{}
 
-// SelectMsg shows that user wants to select some component for interacting with it further.
-type SelectMsg struct {
-}
+// SelectMsg shows that user wants to select some component for focusing on it further.
+type SelectMsg struct{}
 
 // UnselectMsg shows that user no longer wants current component to be selected.
-type UnselectMsg struct {
-}
+type UnselectMsg struct{}
